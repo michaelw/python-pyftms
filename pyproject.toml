@@ -1,6 +1,6 @@
 [project]
 name = "pyftms"
-version = "0.4.15"
+version = "0.4.15+mw.1"
 description = "Bluetooth Fitness Machine Service async client library."
 authors = [
   { name = "Sergey Dudanov", email = "sergey.dudanov@gmail.com" },
@@ -38,10 +38,10 @@ classifiers = [
 ]
 
 [project.urls]
-"Documentation" = "https://github.com/dudanov/pyftms"
-"Home Page" = "https://github.com/dudanov/pyftms"
-"Issue Tracker" = "https://github.com/dudanov/pyftms/issues"
-"Source Code" = "https://github.com/dudanov/pyftms.git"
+"Documentation" = "https://github.com/michaelw/python-pyftms"
+"Home Page" = "https://github.com/michaelw/python-pyftms"
+"Issue Tracker" = "https://github.com/michaelw/python-pyftms/issues"
+"Source Code" = "https://github.com/michaelw/python-pyftms.git"
 
 [project.optional-dependencies]
 docs = [
