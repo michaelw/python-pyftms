@@ -1,6 +1,6 @@
 [project]
 name = "pyftms"
-version = "0.4.15+mw.2"
+version = "0.4.15+mw.3"
 description = "Bluetooth Fitness Machine Service async client library."
 authors = [
   { name = "Sergey Dudanov", email = "sergey.dudanov@gmail.com" },
