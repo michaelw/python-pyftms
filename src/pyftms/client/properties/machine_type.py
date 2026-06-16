@@ -79,3 +79,23 @@ def get_machine_type_from_service_data(
         return mt
 
     raise NotFitnessMachineError(data)
+
+
+def get_machine_type_from_advertisement(
+    adv_data: AdvertisementData,
+) -> MachineType:
+    """Returns fitness machine type from Bluetooth advertisement data.
+
+    Some FTMS devices advertise the FTMS service UUID but omit FTMS service
+    data. Treat those as indoor bikes until GATT probing can detect the real
+    machine type after connection.
+    """
+
+    try:
+        return get_machine_type_from_service_data(adv_data)
+
+    except NotFitnessMachineError:
+        if normalize_uuid_str(FTMS_UUID) in (adv_data.service_uuids or []):
+            return MachineType.INDOOR_BIKE
+
+        raise
