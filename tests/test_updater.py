@@ -42,6 +42,23 @@ def test_updater_emits_zero_value_changes():
     }
 
 
+def test_updater_uses_stable_snapshot_for_callback_event():
+    events = []
+    updater = DataUpdater(IndoorBikeData, events.append)
+    updater._serializer = _FakeSerializer(
+        {"speed_instant": 5.0},
+        {"cadence_instant": 90.0},
+    )
+
+    updater._on_notify(None, bytearray(b"\x00"))
+    first_event_data = events[0].event_data
+
+    updater._on_notify(None, bytearray(b"\x00"))
+
+    assert first_event_data == {"speed_instant": 5.0}
+    assert events[1].event_data == {"cadence_instant": 90.0}
+
+
 def test_updater_suppresses_zero_only_packets_before_first_activity():
     events = []
     updater = DataUpdater(IndoorBikeData, events.append)
