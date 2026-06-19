@@ -51,20 +51,28 @@ class DataUpdater:
         # Some devices send zero-only realtime packets during wakeup/sleep.
         # Ignore those until we have seen a real nonzero packet, but still
         # preserve valid nonzero-to-zero transitions after activity begins.
-        if self._result and all(value == 0 for value in self._result.values()):
+        result = self._result.copy()
+        prev = self._prev.copy()
+
+        if result and all(value == 0 for value in result.values()):
             if not self._seen_nonzero:
                 self._result.clear()
                 return
         else:
             self._seen_nonzero = True
 
-        update = self._result.items() ^ self._prev.items()
+        missing = object()
+        update = {
+            key: value
+            for key, value in result.items()
+            if prev.get(key, missing) != value
+        }
 
-        if update := {k: self._result[k] for k, _ in update}:
+        if update:
             _LOGGER.debug("Update data: %s", update)
             update = cast(UpdateEventData, update)  # unsafe casting
             update = UpdateEvent(event_id="update", event_data=update)
             self._cb(update)
-            self._prev = self._result.copy()
+            self._prev = result
 
         self._result.clear()
