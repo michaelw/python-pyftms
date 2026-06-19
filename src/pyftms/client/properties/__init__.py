@@ -12,12 +12,14 @@ from .features import (
 from .machine_type import (
     MachineType,
     get_machine_type_from_advertisement,
+    get_machine_type_from_gatt,
     get_machine_type_from_service_data,
 )
 
 __all__ = [
     "DeviceInfo",
     "get_machine_type_from_advertisement",
+    "get_machine_type_from_gatt",
     "get_machine_type_from_service_data",
     "MachineFeatures",
     "MachineSettings",

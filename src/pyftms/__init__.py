@@ -25,6 +25,7 @@ from .client import (
     get_client,
     get_client_from_address,
     get_machine_type_from_advertisement,
+    get_machine_type_from_gatt,
     get_machine_type_from_service_data,
 )
 from .client.backends import FtmsEvents
@@ -43,6 +44,7 @@ __all__ = [
     "get_client",
     "get_client_from_address",
     "get_machine_type_from_advertisement",
+    "get_machine_type_from_gatt",
     "get_machine_type_from_service_data",
     "FitnessMachine",
     "CrossTrainer",
