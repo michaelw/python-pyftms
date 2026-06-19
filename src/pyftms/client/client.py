@@ -36,11 +36,12 @@ from .properties import (
     MachineSettings,
     MachineType,
     SettingRange,
+    get_machine_type_from_gatt,
     read_device_info,
     read_features,
 )
 from .properties.device_info import DIS_UUID
-from .errors import CharacteristicNotFound
+from .errors import CharacteristicNotFound, NotFitnessMachineError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -287,29 +288,38 @@ class FitnessMachine(ABC, PropertiesManager):
             svc = None
 
         if svc is not None:
-            # Determine which real-time data characteristic is present and notifiable
-            mt_map = [
-                (c.INDOOR_BIKE_DATA_UUID, MachineType.INDOOR_BIKE, IndoorBikeData),
-                (c.TREADMILL_DATA_UUID, MachineType.TREADMILL, TreadmillData),
-                (c.CROSS_TRAINER_DATA_UUID, MachineType.CROSS_TRAINER, CrossTrainerData),
-                (c.ROWER_DATA_UUID, MachineType.ROWER, RowerData),
-            ]
-            selected = None
-            for uuid, mt, model in mt_map:
+            try:
+                detected_type = get_machine_type_from_gatt(self._cli)
+            except NotFitnessMachineError:
+                detected_type = None
+
+            mt_map = {
+                MachineType.INDOOR_BIKE: (c.INDOOR_BIKE_DATA_UUID, IndoorBikeData),
+                MachineType.TREADMILL: (c.TREADMILL_DATA_UUID, TreadmillData),
+                MachineType.CROSS_TRAINER: (
+                    c.CROSS_TRAINER_DATA_UUID,
+                    CrossTrainerData,
+                ),
+                MachineType.ROWER: (c.ROWER_DATA_UUID, RowerData),
+            }
+            if detected_type in mt_map:
+                uuid, model = mt_map[detected_type]
                 ch = svc.get_characteristic(uuid)
                 if ch and "notify" in getattr(ch, "properties", []):
-                    selected = (uuid, mt, model)
-                    break
+                    should_switch = (
+                        getattr(self, "_data_uuid", None) != uuid
+                        or self._data_model is not model
+                    )
+                else:
+                    should_switch = False
 
-            if selected:
-                uuid, mt, model = selected
-                if getattr(self, "_data_uuid", None) != uuid or self._data_model is not model:
+                if should_switch:
                     _LOGGER.debug(
                         "Detected data characteristic %s; switching machine type to %s",
                         uuid,
-                        mt.name,
+                        detected_type.name,
                     )
-                    self._machine_type = mt
+                    self._machine_type = detected_type
                     self._data_uuid = uuid
                     self._updater = DataUpdater(model, self._on_event)
 
