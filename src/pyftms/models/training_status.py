@@ -60,6 +60,7 @@ class TrainingStatusFlags(IntFlag, boundary=STRICT):
 
         obj = int.__new__(cls, masked)
         obj._value_ = masked
+        obj._name_ = None
         obj._raw_value_ = raw_value
         obj._reserved_bits_ = reserved_bits
         return obj

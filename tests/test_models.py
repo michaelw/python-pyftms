@@ -94,6 +94,38 @@ def test_training_status_flags_known_value_has_no_reserved_bits():
     assert flags.has_reserved_bits is False
 
 
+@pytest.mark.parametrize("raw_value", [0x04, 0x05, 0x46, 0x9B])
+def test_training_status_reserved_flags_support_name_and_repr(raw_value):
+    flags = TrainingStatusFlags(raw_value)
+
+    assert flags.name is None
+    assert repr(flags) == f"<TrainingStatusFlags: {raw_value & 0x03}>"
+    assert flags.raw_value == raw_value
+    assert flags.reserved_bits == raw_value & ~0x03
+    assert (TrainingStatusFlags.STRING_PRESENT in flags) == bool(raw_value & 1)
+    assert (TrainingStatusFlags.EXTENDED_STRING in flags) == bool(raw_value & 2)
+
+
+@pytest.mark.parametrize("trailing_data", [b"", b"Status"])
+def test_training_status_reserved_values_support_model_repr_and_logging(
+    caplog, trailing_data
+):
+    stream = io.BytesIO(b"\x46\x53" + trailing_data)
+    model = TrainingStatusModel._deserialize(stream)
+
+    assert model.flags == TrainingStatusFlags.EXTENDED_STRING
+    assert model.code.name == "RESERVED_83"
+    assert stream.read() == trailing_data
+    assert "flags=<TrainingStatusFlags: 2>" in repr(model)
+    assert "RESERVED_83" in repr(model)
+
+    logger = logging.getLogger("pyftms.models.training_status")
+    with caplog.at_level(logging.DEBUG, logger=logger.name):
+        logger.debug("Training status: %r", model)
+
+    assert f"Training status: {model!r}" in caplog.messages
+
+
 def test_training_status_code_reserved_value_is_cached_and_logs_once(caplog):
     with caplog.at_level(logging.WARNING, logger="pyftms.models.training_status"):
         code = TrainingStatusCode(93)
