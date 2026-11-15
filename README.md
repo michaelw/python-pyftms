@@ -9,7 +9,8 @@
 **Step Climber** and **Stair Climber** machines are **not supported** due to incomplete protocol information and low popularity.
 
 This fork publishes production-ready fixes used by the forked Home Assistant FTMS
-integration. The corresponding fork release for this branch is `v0.4.15+mw.6`.
+integration. The corresponding fork release for this branch is `v0.4.15+mw.7`.
+Reserved Training Status flags retain safe names and representations for logging.
 
 ## Requirments
 
@@ -25,7 +26,7 @@ pip install pyftms
 ## Install the forked release
 
 ```bash
-pip install "pyftms @ git+https://github.com/michaelw/python-pyftms.git@v0.4.15+mw.6"
+pip install "pyftms @ git+https://github.com/michaelw/python-pyftms.git@v0.4.15+mw.7"
 ```
 
 ## Usage
